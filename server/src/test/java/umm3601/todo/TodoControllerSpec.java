@@ -140,10 +140,10 @@ class UserControllerSpec {
     List<Document> testTodos = new ArrayList<>();
     testTodos.add(
         new Document()
-          .append("owner","Alfred")
-          .append("status",false)
-          .append("body","Do the first thing")
-          .append("category","Things")
+          .append("owner", "Alfred")
+          .append("status", false)
+          .append("body", "Do the first thing")
+          .append("category", "Things")
             // .append("name", "Chris")
             // .append("age", 25)
             // .append("company", "UMM")
@@ -153,10 +153,10 @@ class UserControllerSpec {
           );
     testTodos.add(
         new Document()
-         .append("owner","Bob")
-          .append("status",false)
-          .append("body","Do the second thing")
-          .append("category","Things")
+         .append("owner", "Bob")
+          .append("status", false)
+          .append("body", "Do the second thing")
+          .append("category", "Things")
             // .append("name", "Pat")
             // .append("age", 37)
             // .append("company", "IBM")
@@ -166,10 +166,10 @@ class UserControllerSpec {
           );
     testTodos.add(
         new Document()
-         .append("owner","Clide")
-          .append("status",false)
-          .append("body","Do the third thing")
-          .append("category","Things")
+         .append("owner", "Clide")
+          .append("status", false)
+          .append("body", "Do the third thing")
+          .append("category", "Things")
             // .append("name", "Jamie")
             // .append("age", 37)
             // .append("company", "OHMNET")
@@ -180,10 +180,10 @@ class UserControllerSpec {
 
     //samsId = new ObjectId();
     Document sam = new Document()
-        .append("owner","Dave")
-        .append("status",false)
-        .append("body","Do the fourth thing")
-        .append("category","Things");
+        .append("owner", "Dave")
+        .append("status", false)
+        .append("body", "Do the fourth thing")
+        .append("category", "Things");
         // .append("_id", samsId)
         // .append("name", "Sam")
         // .append("age", 45)
@@ -202,7 +202,7 @@ class UserControllerSpec {
   void addsRoutes() {
     Javalin mockServer = mock(Javalin.class);
     todoController.addRoutes(mockServer);
-    verify(mockServer, Mockito.atLeast(1)).get(any(), any());//Number of Invocations? Update this?
+    verify(mockServer, Mockito.atLeast(1)).get(any(), any()); //Number of Invocations? Update this?
     //verify(mockServer, Mockito.atLeastOnce()).post(any(), any());
    // verify(mockServer, Mockito.atLeastOnce()).delete(any(), any());
   }
@@ -240,7 +240,7 @@ class UserControllerSpec {
         db.getCollection("todos").countDocuments(),
         userArrayListCaptor.getValue().size());
   }
-}//Remove this!
+} //Remove this!
 
   /**
    * Confirm that if we process a request for users with age 37,
@@ -430,7 +430,7 @@ class UserControllerSpec {
   //   //     so that's safe, but you might be careful about that assumption in other contexts.
   //   //   - `.exception()` gets the actually `Exception` value that was the underlying cause
   //   Exception exceptionCause = exception.getErrors().get(UserController.AGE_KEY).get(0).exception();
-  //   // The cause should have been a `NumberFormatException` (what is thrown when we try to parse "bad" as an integer).
+  //The cause should have been a `NumberFormatException` (what is thrown when we try to parse "bad" as an integer).
   //   assertEquals(NumberFormatException.class, exceptionCause.getClass());
   //   // The message for that `NumberFOrmatException` should include the text it tried to parse as an integer,
   //   // i.e., `"bad integer string"`.

@@ -35,7 +35,7 @@ import umm3601.Controller;
  */
 public class TodoController implements Controller {
 
-  private static final String API_TODOS= "/api/todos";
+  private static final String API_TODOS = "/api/todos";
   private static final String API_TODO_BY_ID = "/api/todos/{id}";
   static final String OWNER_KEY = "owner";
   static final String STATUS_KEY = "status";
@@ -349,10 +349,10 @@ public class TodoController implements Controller {
   @Override
   public void addRoutes(Javalin server) {
     // Get the specified todo
-    server.get(API_TODO_BY_ID, this::getTodo);//  "/api/todos/{id}"
+    server.get(API_TODO_BY_ID, this::getTodo); //  "/api/todos/{id}"
 
     // List todos, filtered using query parameters
-    server.get(API_TODOS, this::getTodos);//  "/api/todos"
+    server.get(API_TODOS, this::getTodos); //  "/api/todos"
 
     // Get the todos, possibly filtered
     //server.get("/api/todosByCompany", this::getUsersGroupedByCompany);
