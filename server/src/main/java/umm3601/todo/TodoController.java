@@ -41,6 +41,7 @@ public class TodoController implements Controller {
   static final String STATUS_KEY = "status";
   static final String BODY_KEY = "body";
   static final String CATEGORY_KEY = "category";
+  static final String LIMIT_KEY = "limit";
   // static final String AGE_KEY = "age";
   // static final String COMPANY_KEY = "company";
   // static final String ROLE_KEY = "role";
@@ -96,7 +97,12 @@ public class TodoController implements Controller {
   public void getTodos(Context ctx) {
     Bson combinedFilter = constructFilter(ctx);
     Bson sortingOrder = constructSortingOrder(ctx);
-
+    String tempLimit = ctx.queryParam(LIMIT_KEY); //Need a temporary step; param can be null but integers cannot.
+    //Should really just not run the limiter if missing, but couldn't figure out how.
+    Integer targetLimit = Integer.MAX_VALUE;
+    if (tempLimit != null) {
+      targetLimit = Integer.parseInt(tempLimit);
+    }
     // All three of the find, sort, and into steps happen "in parallel" inside the
     // database system. So MongoDB is going to find the users with the specified
     // properties, return those sorted in the specified manner, and put the
@@ -104,6 +110,7 @@ public class TodoController implements Controller {
     ArrayList<Todo> matchingTodos = todoCollection
       .find(combinedFilter)
       .sort(sortingOrder)
+      .limit(targetLimit)
       .into(new ArrayList<>());
 
     // Set the JSON body of the response to be the list of todos returned by the database.
@@ -130,7 +137,11 @@ public class TodoController implements Controller {
    */
   private Bson constructFilter(Context ctx) {
     List<Bson> filters = new ArrayList<>(); // start with an empty list of filters
-
+    // if (ctx.queryParamMap().containsKey(LIMIT_KEY)) { //Old test for a limiting filter. Probably should be elsewhere?
+    //   int targetLimit = ctx.queryParamAsClass(LIMIT_KEY,Integer.class)
+    //     .get();
+    //     filters.add(eq(LIMIT_KEY,targetLimit));
+    // }
     // if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
     //   int targetAge = ctx.queryParamAsClass(AGE_KEY, Integer.class)
     //     .check(it -> it > 0, "User's age must be greater than zero; you provided " + ctx.queryParam(AGE_KEY))
