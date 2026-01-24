@@ -137,6 +137,8 @@ public class TodoController implements Controller {
    */
   private Bson constructFilter(Context ctx) {
     List<Bson> filters = new ArrayList<>(); // start with an empty list of filters
+
+
     // if (ctx.queryParamMap().containsKey(LIMIT_KEY)) { //Old test for a limiting filter. Probably should be elsewhere?
     //   int targetLimit = ctx.queryParamAsClass(LIMIT_KEY,Integer.class)
     //     .get();
@@ -154,12 +156,14 @@ public class TodoController implements Controller {
     //   Pattern pattern = Pattern.compile(Pattern.quote(ctx.queryParam(COMPANY_KEY)), Pattern.CASE_INSENSITIVE);
     //   filters.add(regex(COMPANY_KEY, pattern));
     // }
-    // if (ctx.queryParamMap().containsKey(ROLE_KEY)) {
-    //   String role = ctx.queryParamAsClass(ROLE_KEY, String.class)
-    //     .check(it -> it.matches(ROLE_REGEX), "User must have a legal user role")
-    //     .get();
-    //   filters.add(eq(ROLE_KEY, role));
-    // }
+    if (ctx.queryParamMap().containsKey(STATUS_KEY)) {
+      String status = ctx.queryParamAsClass(STATUS_KEY, String.class).get();
+      Boolean realStatus = false;
+      if (new String("complete").equals(status)) {
+        realStatus = true;
+      }
+      filters.add(eq(STATUS_KEY, realStatus));
+    }
 
     // Combine the list of filters into a single filtering document.
     Bson combinedFilter = filters.isEmpty() ? new Document() : and(filters);
