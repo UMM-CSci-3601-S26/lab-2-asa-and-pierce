@@ -158,11 +158,11 @@ public class TodoController implements Controller {
     // }
     if (ctx.queryParamMap().containsKey(STATUS_KEY)) {
       String status = ctx.queryParamAsClass(STATUS_KEY, String.class).get();
-      Boolean real_status = false;
+      Boolean realStatus = false;
       if (new String("complete").equals(status)) {
-        real_status = true;
+        realStatus = true;
       }
-      filters.add(eq(STATUS_KEY, real_status));
+      filters.add(eq(STATUS_KEY, realStatus));
     }
 
     // Combine the list of filters into a single filtering document.
