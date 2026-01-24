@@ -2,7 +2,7 @@ package umm3601.todo;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-//import static com.mongodb.client.model.Filters.regex;
+import static com.mongodb.client.model.Filters.regex;
 
 //import java.nio.charset.StandardCharsets;
 //import java.security.MessageDigest;
@@ -163,12 +163,21 @@ public class TodoController implements Controller {
         .get();
       filters.add(eq(CATEGORY_KEY, category));
     }
+
+    if (ctx.queryParamMap().containsKey(BODY_KEY)) {
+      String substring = ctx.queryParamAsClass(BODY_KEY, String.class)
+        //Category must be case-specific.
+        //.check(it -> it.matches(OWNER_REGEX), "User must have a legal user role")
+        .get();
+      filters.add(regex(BODY_KEY, substring));
+
+    }
     if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
       String owner = ctx.queryParamAsClass(OWNER_KEY, String.class)
         //Owner must also be case-specific.
         //.check(it -> it.matches(OWNER_REGEX), "User must have a legal user role")
         .get();
-      filters.add(eq(OWNER_KEY, owner));
+      filters.add(regex(OWNER_KEY, owner));
     }
     if (ctx.queryParamMap().containsKey(STATUS_KEY)) {
       String status = ctx.queryParamAsClass(STATUS_KEY, String.class).get();
