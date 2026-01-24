@@ -156,6 +156,20 @@ public class TodoController implements Controller {
     //   Pattern pattern = Pattern.compile(Pattern.quote(ctx.queryParam(COMPANY_KEY)), Pattern.CASE_INSENSITIVE);
     //   filters.add(regex(COMPANY_KEY, pattern));
     // }
+    if (ctx.queryParamMap().containsKey(CATEGORY_KEY)) {
+      String category = ctx.queryParamAsClass(CATEGORY_KEY, String.class)
+        //Category must be case-specific.
+        //.check(it -> it.matches(OWNER_REGEX), "User must have a legal user role")
+        .get();
+      filters.add(eq(CATEGORY_KEY, category));
+    }
+    if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
+      String owner = ctx.queryParamAsClass(OWNER_KEY, String.class)
+        //Owner must also be case-specific.
+        //.check(it -> it.matches(OWNER_REGEX), "User must have a legal user role")
+        .get();
+      filters.add(eq(OWNER_KEY, owner));
+    }
     if (ctx.queryParamMap().containsKey(STATUS_KEY)) {
       String status = ctx.queryParamAsClass(STATUS_KEY, String.class).get();
       Boolean realStatus = false;
