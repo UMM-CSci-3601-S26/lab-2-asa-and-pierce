@@ -189,7 +189,7 @@ public class TodoController implements Controller {
     // Sort the results. Use the `sortby` query param (default "name")
     // as the field to sort by, and the query param `sortorder` (default
     // "asc") to specify the sort order.
-    String sortType = ("unsorted");//Default to a nonexistent key; returns unsorted results.
+    String sortType = ("unsorted"); //Default to a nonexistent key; returns unsorted results.
     if (ctx.queryParamMap().containsKey(ORDER_KEY)) {
       sortType = ctx.queryParamAsClass(ORDER_KEY, String.class)
       .get();
