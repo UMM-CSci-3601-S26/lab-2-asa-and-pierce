@@ -42,6 +42,7 @@ public class TodoController implements Controller {
   static final String BODY_KEY = "body";
   static final String CATEGORY_KEY = "category";
   static final String LIMIT_KEY = "limit";
+  static final String ORDER_KEY = "order";
   // static final String AGE_KEY = "age";
   // static final String COMPANY_KEY = "company";
   // static final String ROLE_KEY = "role";
@@ -137,45 +138,20 @@ public class TodoController implements Controller {
    */
   private Bson constructFilter(Context ctx) {
     List<Bson> filters = new ArrayList<>(); // start with an empty list of filters
-
-
-    // if (ctx.queryParamMap().containsKey(LIMIT_KEY)) { //Old test for a limiting filter. Probably should be elsewhere?
-    //   int targetLimit = ctx.queryParamAsClass(LIMIT_KEY,Integer.class)
-    //     .get();
-    //     filters.add(eq(LIMIT_KEY,targetLimit));
-    // }
-    // if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
-    //   int targetAge = ctx.queryParamAsClass(AGE_KEY, Integer.class)
-    //     .check(it -> it > 0, "User's age must be greater than zero; you provided " + ctx.queryParam(AGE_KEY))
-    //     .check(it -> it < REASONABLE_AGE_LIMIT,
-    //       "User's age must be less than " + REASONABLE_AGE_LIMIT + "; you provided " + ctx.queryParam(AGE_KEY))
-    //     .get();
-    //   filters.add(eq(AGE_KEY, targetAge));
-    // }
-    // if (ctx.queryParamMap().containsKey(COMPANY_KEY)) {
-    //   Pattern pattern = Pattern.compile(Pattern.quote(ctx.queryParam(COMPANY_KEY)), Pattern.CASE_INSENSITIVE);
-    //   filters.add(regex(COMPANY_KEY, pattern));
-    // }
     if (ctx.queryParamMap().containsKey(CATEGORY_KEY)) {
       String category = ctx.queryParamAsClass(CATEGORY_KEY, String.class)
-        //Category must be case-specific.
-        //.check(it -> it.matches(OWNER_REGEX), "User must have a legal user role")
         .get();
       filters.add(eq(CATEGORY_KEY, category));
     }
 
     if (ctx.queryParamMap().containsKey(BODY_KEY)) {
       String substring = ctx.queryParamAsClass(BODY_KEY, String.class)
-        //Category must be case-specific.
-        //.check(it -> it.matches(OWNER_REGEX), "User must have a legal user role")
         .get();
       filters.add(regex(BODY_KEY, substring));
 
     }
     if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
       String owner = ctx.queryParamAsClass(OWNER_KEY, String.class)
-        //Owner must also be case-specific.
-        //.check(it -> it.matches(OWNER_REGEX), "User must have a legal user role")
         .get();
       filters.add(regex(OWNER_KEY, owner));
     }
@@ -213,149 +189,16 @@ public class TodoController implements Controller {
     // Sort the results. Use the `sortby` query param (default "name")
     // as the field to sort by, and the query param `sortorder` (default
     // "asc") to specify the sort order.
-    String sortBy = Objects.requireNonNullElse(ctx.queryParam("sortby"), "name");
+    String sortType = ("unsorted");//Default to a nonexistent key; returns unsorted results.
+    if (ctx.queryParamMap().containsKey(ORDER_KEY)) {
+      sortType = ctx.queryParamAsClass(ORDER_KEY, String.class)
+      .get();
+    }
+    String sortBy = Objects.requireNonNullElse(ctx.queryParam("sortby"), sortType);
     String sortOrder = Objects.requireNonNullElse(ctx.queryParam("sortorder"), "asc");
     Bson sortingOrder = sortOrder.equals("desc") ?  Sorts.descending(sortBy) : Sorts.ascending(sortBy);
     return sortingOrder;
   }
-
-  /**
-   * Set the JSON body of the response to be a list of all the user names and IDs
-   * returned from the database, grouped by company
-   *
-   * This "returns" a list of user names and IDs, grouped by company in the JSON
-   * body of the response. The user names and IDs are stored in `UserIdName` objects,
-   * and the company name, the number of users in that company, and the list of user
-   * names and IDs are stored in `UserByCompany` objects.
-   *
-   * @param ctx a Javalin HTTP context that provides the query parameters
-   *   used to sort the results. We support either sorting by company name
-   *   (in either `asc` or `desc` order) or by the number of users in the
-   *   company (`count`, also in either `asc` or `desc` order).
-   */
-   public void getUsersGroupedByCompany(Context ctx) {
-  //   // We'll support sorting the results either by company name (in either `asc` or `desc` order)
-  //   // or by the number of users in the company (`count`, also in either `asc` or `desc` order).
-  //   String sortBy = Objects.requireNonNullElse(ctx.queryParam("sortBy"), "_id");
-  //   if (sortBy.equals("company")) {
-  //     sortBy = "_id";
-  //   }
-  //   String sortOrder = Objects.requireNonNullElse(ctx.queryParam("sortOrder"), "asc");
-  //   Bson sortingOrder = sortOrder.equals("desc") ?  Sorts.descending(sortBy) : Sorts.ascending(sortBy);
-
-    // The `UserByCompany` class is a simple class that has fields for the company
-    // name, the number of users in that company, and a list of user names and IDs
-    // (using the `UserIdName` class to store the user names and IDs).
-    // We're going to use the aggregation pipeline to group users by company, and
-    // then count the number of users in each company. We'll also collect the user
-    // names and IDs for each user in each company. We'll then convert the results
-    // of the aggregation pipeline to `UserByCompany` objects.
-
-  //   ArrayList<UserByCompany> matchingUsers = userCollection
-  //     // The following aggregation pipeline groups users by company, and
-  //     // then counts the number of users in each company. It also collects
-  //     // the user names and IDs for each user in each company.
-  //     .aggregate(
-  //       List.of(
-  //         // Project the fields we want to use in the next step, i.e., the _id, name, and company fields
-  //         new Document("$project", new Document("_id", 1).append("name", 1).append("company", 1)),
-  //         // Group the users by company, and count the number of users in each company
-  //         new Document("$group", new Document("_id", "$company")
-  //           // Count the number of users in each company
-  //           .append("count", new Document("$sum", 1))
-  //           // Collect the user names and IDs for each user in each company
-  //           .append("users", new Document("$push", new Document("_id", "$_id").append("name", "$name")))),
-  //         // Sort the results. Use the `sortby` query param (default "company")
-  //         // as the field to sort by, and the query param `sortorder` (default
-  //         // "asc") to specify the sort order.
-  //         new Document("$sort", sortingOrder)
-  //       ),
-  //       // Convert the results of the aggregation pipeline to UserGroupResult objects
-  //       // (i.e., a list of UserGroupResult objects). It is necessary to have a Java type
-  //       // to convert the results to, and the JacksonMongoCollection will do this for us.
-  //       UserByCompany.class
-  //     )
-  //     .into(new ArrayList<>());
-
-  //   ctx.json(matchingUsers);
-  //   ctx.status(HttpStatus.OK);
-   }
-
-  /**
-   * Add a new user using information from the context
-   * (as long as the information gives "legal" values to User fields)
-   *
-   *@param ctx a Javalin HTTP context that provides the user info
-   *  in the JSON body of the request
-   */
-   public void addNewUser(Context ctx) {
-  //   /*
-  //    * The follow chain of statements uses the Javalin validator system
-  //    * to verify that instance of `User` provided in this context is
-  //    * a "legal" user. It checks the following things (in order):
-  //    *    - The user has a value for the name (`usr.name != null`)
-  //    *    - The user name is not blank (`usr.name.length > 0`)
-  //    *    - The provided email is valid (matches EMAIL_REGEX)
-  //    *    - The provided age is > 0
-  //    *    - The provided age is < REASONABLE_AGE_LIMIT
-  //    *    - The provided role is valid (one of "admin", "editor", or "viewer")
-  //    *    - A non-blank company is provided
-  //    * If any of these checks fail, the Javalin system will throw a
-  //    * `BadRequestResponse` with an appropriate error message.
-  //    */
-  //   String body = ctx.body();
-  //   User newUser = ctx.bodyValidator(User.class)
-  //     .check(usr -> usr.name != null && usr.name.length() > 0,
-  //       "User must have a non-empty user name; body was " + body)
-  //     .check(usr -> usr.email.matches(EMAIL_REGEX),
-  //       "User must have a legal email; body was " + body)
-  //     .check(usr -> usr.age > 0,
-  //       "User's age must be greater than zero; body was " + body)
-  //     .check(usr -> usr.age < REASONABLE_AGE_LIMIT,
-  //       "User's age must be less than " + REASONABLE_AGE_LIMIT + "; body was " + body)
-  //     .check(usr -> usr.role.matches(ROLE_REGEX),
-  //       "User must have a legal user role; body was " + body)
-  //     .check(usr -> usr.company != null && usr.company.length() > 0,
-  //       "User must have a non-empty company name; body was " + body)
-  //     .get();
-
-  //   // Generate a user avatar (you won't need this part for todos)
-  //   newUser.avatar = generateAvatar(newUser.email);
-
-  //   // Add the new user to the database
-  //   userCollection.insertOne(newUser);
-
-  //   // Set the JSON response to be the `_id` of the newly created user.
-  //   // This gives the client the opportunity to know the ID of the new user,
-  //   // which it can then use to perform further operations (e.g., a GET request
-  //   // to get and display the details of the new user).
-  //   ctx.json(Map.of("id", newUser._id));
-  //   // 201 (`HttpStatus.CREATED`) is the HTTP code for when we successfully
-  //   // create a new resource (a user in this case).
-  //   // See, e.g., https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-  //   // for a description of the various response codes.
-  //   ctx.status(HttpStatus.CREATED);
-   }
-
-  /**
-   * Delete the user specified by the `id` parameter in the request.
-   *
-   * @param ctx a Javalin HTTP context
-   */
-  public void deleteUser(Context ctx) {
-  //   String id = ctx.pathParam("id");
-  //   DeleteResult deleteResult = userCollection.deleteOne(eq("_id", new ObjectId(id)));
-  //   // We should have deleted 1 or 0 users, depending on whether `id` is a valid user ID.
-  //   if (deleteResult.getDeletedCount() != 1) {
-  //     ctx.status(HttpStatus.NOT_FOUND);
-  //     throw new NotFoundResponse(
-  //       "Was unable to delete ID "
-  //         + id
-  //         + "; perhaps illegal ID or an ID for an item not in the system?");
-  //   }
-  //   ctx.status(HttpStatus.OK);
-   }
-
   /**
    * Sets up routes for the `user` collection endpoints.
    * A UserController instance handles the user endpoints,
