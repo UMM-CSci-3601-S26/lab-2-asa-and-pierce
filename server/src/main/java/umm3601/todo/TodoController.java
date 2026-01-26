@@ -43,6 +43,7 @@ public class TodoController implements Controller {
   static final String CATEGORY_KEY = "category";
   static final String LIMIT_KEY = "limit";
   static final String ORDER_KEY = "order";
+  static final String STATUS_REGEX = "^(complete|incomplete)$";
   // static final String AGE_KEY = "age";
   // static final String COMPANY_KEY = "company";
   // static final String ROLE_KEY = "role";
@@ -156,7 +157,9 @@ public class TodoController implements Controller {
       filters.add(regex(OWNER_KEY, owner));
     }
     if (ctx.queryParamMap().containsKey(STATUS_KEY)) {
-      String status = ctx.queryParamAsClass(STATUS_KEY, String.class).get();
+      String status = ctx.queryParamAsClass(STATUS_KEY, String.class)
+        .check(it -> it.matches(STATUS_REGEX), "Status must be complete or incomplete.")
+         .get();
       Boolean realStatus = false;
       if (new String("complete").equals(status)) {
         realStatus = true;
