@@ -39,10 +39,10 @@ public class TodoController implements Controller {
   private static final String API_TODO_BY_ID = "/api/todos/{id}";
   static final String OWNER_KEY = "owner";
   static final String STATUS_KEY = "status";
-  static final String BODY_KEY = "body"; //"contains?"
+  static final String BODY_KEY = "contains"; //"body?"
   static final String CATEGORY_KEY = "category";
   static final String LIMIT_KEY = "limit";
-  static final String ORDER_KEY = "order";
+  static final String ORDER_KEY = "orderBy";
   static final String STATUS_REGEX = "^(complete|incomplete)$";
   // static final String AGE_KEY = "age";
   // static final String COMPANY_KEY = "company";
@@ -145,9 +145,10 @@ public class TodoController implements Controller {
     }
 
     if (ctx.queryParamMap().containsKey(BODY_KEY)) {
-      String substring = ctx.queryParam(BODY_KEY);
-      filters.add(regex(BODY_KEY, substring));
+      String body = ctx.queryParam(BODY_KEY);
+      filters.add(regex(BODY_KEY, body));
     }
+
     if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
       String owner = ctx.queryParam(OWNER_KEY);
       filters.add(regex(OWNER_KEY, owner));
