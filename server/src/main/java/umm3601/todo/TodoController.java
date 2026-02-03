@@ -145,8 +145,8 @@ public class TodoController implements Controller {
     }
 
     if (ctx.queryParamMap().containsKey(BODY_KEY)) {
-      String body = ctx.queryParam(BODY_KEY);
-      filters.add(regex(BODY_KEY, body));
+      String substring = ctx.queryParam(BODY_KEY);
+      filters.add(regex("body", substring)); //the body parameter is now different from the Key.
     }
 
     if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
