@@ -31,7 +31,7 @@ import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
 
 /**
- * Controller that manages requests for info about users.
+ * Controller that manages requests for info about todos.
  */
 public class TodoController implements Controller {
 
@@ -39,10 +39,10 @@ public class TodoController implements Controller {
   private static final String API_TODO_BY_ID = "/api/todos/{id}";
   static final String OWNER_KEY = "owner";
   static final String STATUS_KEY = "status";
-  static final String BODY_KEY = "body";
+  static final String BODY_KEY = "contains"; //"body?"
   static final String CATEGORY_KEY = "category";
   static final String LIMIT_KEY = "limit";
-  static final String ORDER_KEY = "order";
+  static final String ORDER_KEY = "orderBy";
   static final String STATUS_REGEX = "^(complete|incomplete)$";
   // static final String AGE_KEY = "age";
   // static final String COMPANY_KEY = "company";
@@ -140,20 +140,17 @@ public class TodoController implements Controller {
   private Bson constructFilter(Context ctx) {
     List<Bson> filters = new ArrayList<>(); // start with an empty list of filters
     if (ctx.queryParamMap().containsKey(CATEGORY_KEY)) {
-      String category = ctx.queryParamAsClass(CATEGORY_KEY, String.class)
-        .get();
+      String category = ctx.queryParam(CATEGORY_KEY);
       filters.add(eq(CATEGORY_KEY, category));
     }
 
     if (ctx.queryParamMap().containsKey(BODY_KEY)) {
-      String substring = ctx.queryParamAsClass(BODY_KEY, String.class)
-        .get();
-      filters.add(regex(BODY_KEY, substring));
-
+      String substring = ctx.queryParam(BODY_KEY);
+      filters.add(regex("body", substring)); //the body parameter is now different from the Key.
     }
+
     if (ctx.queryParamMap().containsKey(OWNER_KEY)) {
-      String owner = ctx.queryParamAsClass(OWNER_KEY, String.class)
-        .get();
+      String owner = ctx.queryParam(OWNER_KEY);
       filters.add(regex(OWNER_KEY, owner));
     }
     if (ctx.queryParamMap().containsKey(STATUS_KEY)) {
